@@ -15,6 +15,7 @@ from torf import _utils as utils
 @pytest.mark.parametrize(
     argnames='num, exp_return_value',
     argvalues=(
+        # Negative numbers should still return False
         (-16 * 3 * 1024 + 1, False),
         (-16 * 3 * 1024 + 0, False),
         (-16 * 3 * 1024 - 1, False),
@@ -22,14 +23,23 @@ from torf import _utils as utils
         (-16 * 1 * 1024 + 0, False),
         (-16 * 1 * 1024 - 1, False),
         (-1, False),
-        (0, False),
-        (1, False),
-        (16 * 1 * 1024 + 1, False),
-        (16 * 1 * 1024 + 0, True),
-        (16 * 1 * 1024 - 1, False),
-        (16 * 3 * 1024 + 1, False),
-        (16 * 3 * 1024 + 0, True),
-        (16 * 3 * 1024 - 1, False),
+        (0, False),  # Zero should return False
+        
+        # All positive numbers should now return True (more permissive)
+        (1, True),
+        (16 * 1 * 1024 + 1, True),  # Non-standard piece length
+        (16 * 1 * 1024 + 0, True),  # Standard piece length (16384)
+        (16 * 1 * 1024 - 1, True),  # Non-standard piece length
+        (16 * 3 * 1024 + 1, True),  # Non-standard piece length
+        (16 * 3 * 1024 + 0, True),  # Standard piece length (49152)
+        (16 * 3 * 1024 - 1, True),  # Non-standard piece length
+        
+        # Test some real-world problematic piece lengths
+        (385024, True),   # From the original issue
+        (628736, True),   # From the original issue
+        (1028096, True),  # From the original issue
+        (1206272, True),  # From testing
+        (1251328, True),  # From testing
 
     ),
 )
